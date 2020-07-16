@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <button id="trigger">click me</button>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const trigger = document.querySelector("#trigger");
+        trigger.addEventListener("click", e => {
+          console.log("running function");
+          google.script.run
+            .withSuccessHandler( logIt )
+            .withFailureHandler( logIt )
+            .saySome()       
+        });
+        
+        function logIt(it){
+          console.log("success ran");
+          console.log(it)
+        }
+      });
+    </script>
+  </body>
+</html>
+
+

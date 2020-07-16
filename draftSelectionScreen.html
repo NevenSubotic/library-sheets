@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+      select{
+        display: block;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <div id="progressBar" class="progress">
+      <div class="indeterminate"></div>
+    </div>
+    
+    <div class="container">
+      <p id="test"></p>
+      <br/>
+      <div class="input-field ">
+        <select id="draftsSelect" class="browser-default"></select>
+      </div>
+      <br/>
+      <button id="submitBtn" class="btn teal">Submit!</button>
+      <br/><br/>
+      <button id="getDraftsBtn" class="btn orange">Get Drafts</button>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>    
+    <script type="text/javascript">         
+      var testEl       = document.getElementById("test");
+      var draftsSelect = document.getElementById("draftsSelect");
+      var submitBtn    = document.getElementById("submitBtn");
+      var getDraftsBtn = document.getElementById("getDraftsBtn");
+      var progressEl   = document.getElementById("progressBar");
+        
+      document.addEventListener('DOMContentLoaded', function() {
+        console.clear();
+        getDrafts();  
+        
+        draftsSelect.addEventListener("contentChanged", function(e){ console.log(this) });
+        getDraftsBtn.addEventListener("click", getDrafts);
+        submitBtn.addEventListener("click", handleSubmit);
+        
+        function init(){
+          var instances = M.FormSelect.init(draftsSelect); // does not work as intended      
+        }
+        
+        function handleSubmit(){
+          submitBtn.classList.add("disabled");
+          console.log("running submit");
+          const selectedDraftId = draftsSelect.value;
+          google.script.run
+            .withSuccessHandler( logThis )
+            .withFailureHandler( logThis )
+            .handleFormSubmit( selectedDraftId )        
+        }
+        
+        function getDrafts(){
+          getDraftsBtn.classList.add("disabled");
+          console.log("running getDrafts");
+          progressEl.classList.remove("hide")
+          google.script.run
+            .withSuccessHandler( updateDrafts )
+            .withFailureHandler( logThis )
+            .getDraftsArr();         
+          
+          function updateDrafts( drafts ){ 
+              console.log("inserting drafts into <select>");
+              let options = "";
+              const draftsParsed = JSON.parse(drafts);        
+              
+              draftsParsed.forEach(function( draft ){                       
+                options += "<option value='" + draft.id + "'>" + draft.subject + "</option>";
+              });
+              
+              draftsSelect.innerHTML = options;
+              progressEl.classList.add("hide");
+              getDraftsBtn.classList.remove("disabled");
+          }                          
+        }
+        
+        function logThis(that){          
+          console.log("failed: ", that);
+          testEl.innerHTML = that;
+          submitBtn.classList.remove("disabled");
+          getDraftsBtn.classList.remove("disabled");
+        }
+      }); 
+                
+    </script>
+    
+  </body>
+</html>
+
+
